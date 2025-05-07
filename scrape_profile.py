@@ -9,6 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.remote.webelement import WebElement
+from argparse import ArgumentParser
 
 # Load environment variables from .env file
 load_dotenv()
@@ -23,6 +24,7 @@ class LinkedInScraper:
 
         # Chrome Initialization
         options = webdriver.ChromeOptions()
+        options.add_argument("--headless=new")
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
         options.add_argument("--log-level=3")
@@ -154,7 +156,6 @@ class LinkedInScraper:
                     }
                 )
             except Exception as e:
-                print(f"Error extracting job data: {e}")
                 continue
 
         return experiences
@@ -164,28 +165,39 @@ def main():
     # Load LinkedIn credentials from environment variables
     email = os.getenv("LINKEDIN_EMAIL")
     password = os.getenv("LINKEDIN_PASSWORD")
-    linkedin_url = "https://www.linkedin.com/in/florian-minguet-326532233/"
+
+    # Get the LinkedIn profile URL from command line arguments
+    linkedin_url = None
+    parser = ArgumentParser(description="LinkedIn Profile Scraper")
+    parser.add_argument(
+        "-u",
+        "--url",
+        type=str,
+        required=True,
+        help="LinkedIn profile URL to scrape (e.g., https://www.linkedin.com/in/username/)",
+    )
+    args = parser.parse_args()
+    linkedin_url = args.url
 
     # Initialize the LinkedIn scraper and login
     try:
         if not email or not password:
             raise ValueError("LinkedIn credentials are not set in the environment variables.")
-
         scraper = LinkedInScraper(email, password)
         scraper.login()
-        print("Logged in")
     except Exception:
         print(f"Error during login")
         return
 
-    # Scrape the profile data
-    profile_data = scraper.scrape_profile(linkedin_url)
-
-    # Save the profile data to a JSON file
-    file_name = f"profile_data_{profile_data['name'].replace(' ', '_')}.json"
-    with open(file_name, "w", encoding="utf-8") as f:
-        json.dump(profile_data, f, ensure_ascii=False, indent=2)
-    print(f"Profile data saved to {file_name}")
+    # Scrape the profile data and print it as JSON
+    try:
+        if not linkedin_url.startswith("https://www.linkedin.com/in/"):
+            raise ValueError("Invalid LinkedIn profile URL.")
+        profile_data = scraper.scrape_profile(linkedin_url)
+        print(json.dumps(profile_data))
+    except Exception as e:
+        print(f"Error during scraping: {e}")
+        return
 
     scraper.quit()
 
