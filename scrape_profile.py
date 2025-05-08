@@ -40,7 +40,7 @@ class LinkedInScraper:
         self.driver.find_element(By.ID, "password").send_keys(self.password)
         self.driver.find_element(By.XPATH, "//button[@type='submit']").click()
 
-        WebDriverWait(self.driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, "global-nav__me")))
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "global-nav__me")))
 
     # Function to quit the driver
     def quit(self) -> None:
@@ -55,7 +55,7 @@ class LinkedInScraper:
 
         # Getting the name by trying different elements
         try:
-            name_elem = WebDriverWait(self.driver, 10).until(
+            name_elem = WebDriverWait(self.driver, 5).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, "div.ph5 h1"))
             )
             data["name"] = name_elem.text.strip()
@@ -109,7 +109,7 @@ class LinkedInScraper:
         # Getting all the experiences of the user
         try:
             data["experiences"] = self.__get_experiences()
-        except Exception as e:
+        except:
             data["experiences"] = None
 
         return data
@@ -155,7 +155,7 @@ class LinkedInScraper:
                         "location": location_elem,
                     }
                 )
-            except Exception as e:
+            except:
                 continue
 
         return experiences
@@ -180,13 +180,16 @@ def main():
     linkedin_url = args.url
 
     # Initialize the LinkedIn scraper and login
+    scraper = None
     try:
         if not email or not password:
             raise ValueError("LinkedIn credentials are not set in the environment variables.")
         scraper = LinkedInScraper(email, password)
         scraper.login()
-    except Exception:
+    except:
         print(f"Error during login")
+        if scraper:
+            scraper.quit()
         return
 
     # Scrape the profile data and print it as JSON
@@ -195,9 +198,8 @@ def main():
             raise ValueError("Invalid LinkedIn profile URL.")
         profile_data = scraper.scrape_profile(linkedin_url)
         print(json.dumps(profile_data))
-    except Exception as e:
-        print(f"Error during scraping: {e}")
-        return
+    except:
+        print("{}")
 
     scraper.quit()
 

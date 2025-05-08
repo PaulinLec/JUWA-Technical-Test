@@ -89,11 +89,11 @@ export class ProfilesService {
             const parsed = JSON.parse(data);
 
             resolve(parsed);
-          } catch (e) {
-            reject(`Failed to parse JSON: ${e}`);
+          } catch (json_error) {
+            reject("Error while scraping the profile (check your LinkedIn URl and credentials)");
           }
         } else {
-          reject(`Python script failed: ${error}`);
+          reject(error);
         }
       });
     });
