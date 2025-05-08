@@ -55,7 +55,7 @@ class LinkedInScraper:
 
         # Getting the name by trying different elements
         try:
-            name_elem = WebDriverWait(self.driver, 5).until(
+            name_elem = WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, "div.ph5 h1"))
             )
             data["name"] = name_elem.text.strip()

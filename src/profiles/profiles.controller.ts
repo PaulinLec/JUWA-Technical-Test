@@ -37,6 +37,7 @@ export class ProfilesController {
   @ApiResponse({ status: 400, description: 'Invalid LinkedIn profile URL' })
   @ApiResponse({ status: 401, description: 'Unauthorized access' })
   @ApiResponse({ status: 404, description: 'LinkedIn profile not found' })
+  @ApiResponse({ status: 500, description: 'Internal server error' })
   @Post()
   async scrape(@Body() body: CreateProfileDto) {
     return this.profilesService.processProfile(body.url);
