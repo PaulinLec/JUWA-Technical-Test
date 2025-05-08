@@ -90,7 +90,9 @@ export class ProfilesService {
 
             resolve(parsed);
           } catch (json_error) {
-            reject("Error while scraping the profile (check your LinkedIn URl and credentials)");
+            reject(
+              'Error while scraping the profile (check your LinkedIn URl and credentials)',
+            );
           }
         } else {
           reject(error);

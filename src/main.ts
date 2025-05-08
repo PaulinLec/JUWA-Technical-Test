@@ -6,6 +6,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Add validation pipe globally to make the @IsUrl decorator work
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -14,6 +15,7 @@ async function bootstrap() {
     }),
   );
 
+  // Configure Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('LinkedIn Scraper API')
     .setDescription('Scrapes, analyzes, and exposes LinkedIn profiles')
